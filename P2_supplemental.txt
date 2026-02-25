@@ -35,7 +35,9 @@ up to the root, alternating between being minimized and maximized by the ghosts 
 optimal score and action returns to the root.
 
 
+
 Q3.1:
+
 
 Q3.2
 
