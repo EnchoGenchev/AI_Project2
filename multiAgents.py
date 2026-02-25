@@ -102,7 +102,7 @@ class ReflexAgent(Agent):
             score -= 10
 
         return score
-        
+
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
@@ -163,7 +163,58 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        result = self.minimax(gameState, 0, 0)
+        return result[1] #action
+
+    def minimax(self, gameState, agentIndex, depth):
+        #base case
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState), None
+
+        if agentIndex == 0: #pacmans turn bc pacman is agent 0
+            return self.maxValue(gameState, agentIndex, depth)
+        else: #otherwise it's the ghosts' turn
+            return self.minValue(gameState, agentIndex, depth)
+
+    def maxValue(self, gameState, agentIndex, depth):
+        maxScore = -9999999
+        maxAction = None
+        
+        for action in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, action)
+
+            #recursive call to check the ghosts move (agent 1)
+            score, _ = self.minimax(successor, 1, depth)
+            
+            #update optimal pacman move
+            if score > maxScore:
+                maxScore, maxAction = score, action
+                
+        return maxScore, maxAction
+
+    def minValue(self, gameState, agentIndex, depth):
+        minScore = 9999999
+        minAction = None
+        
+        #go to next ghost
+        nextAgent = agentIndex + 1
+        nextDepth = depth
+        
+        #once all ghosts checked, the next turn is pacman's
+        if nextAgent == gameState.getNumAgents():
+            nextAgent = 0 #no more ghosts left
+            nextDepth += 1 #once all ghosts checked go down a level
+
+        for action in gameState.getLegalActions(agentIndex):
+            #getting successor state for each action
+            successor = gameState.generateSuccessor(agentIndex, action)
+            score, _ = self.minimax(successor, nextAgent, nextDepth)
+            
+            #update optimal ghost move
+            if score < minScore:
+                minScore, minAction = score, action
+                
+        return minScore, minAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """

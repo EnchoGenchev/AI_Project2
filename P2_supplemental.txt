@@ -1,14 +1,18 @@
 Please Enter your team's full names and your answers to the questions marked by QS questions here!
+
 Encho Genchev
 Fabian Ochoa
 
-Q1.1: ReflexAgent first checks all of the legal moves pacman can make and then determines
+Q1.1: 
+ReflexAgent first checks all of the legal moves pacman can make and then determines
 the best action based on an evaluation function. The original evaluation function did not update 
 the "score" for each action, resulting in random moves. The updated evaluation function takes into
 account pacman's proximity to food, giving actions closer to food a higher score. The updated 
 evaulation function also gives a huge penalty of the action places pacman next to a ghost since that
 could potentially mean game over. With these updates, pacman beats the single ghost everytime and
 sometimes even beats the two ghosts.
+
+
 
 Q1.2:
 d = distance to food 
@@ -18,15 +22,17 @@ s = number of turns pacman stops
 score = score + 10/d - 10s - 1000g 
 
 This makes sense because the function returns higher values when pacman is moving and getting
-closer to food, which would get higher scores. It also returns lower values when pacman stops or encounters a ghost, which 
-could end the game or make it go on forever.
+closer to food, which would get higher scores. It also returns lower values when pacman stops or 
+encounters a ghost, which could end the game or make it go on forever.
 
 
 
-Q2.1:
-
-
-
+Q2.1: 
+MinimaxAgent runs getAction, which calls the minimax function. This is a recursive function that
+continues until it hits a base case: pacman wins, loses, or search hits the max depth allowed. This works
+because once the base case is reached, the returned values from the base of the recursion tree travel back 
+up to the root, alternating between being minimized and maximized by the ghosts and pacman until the 
+optimal score and action returns to the root.
 
 
 Q3.1:
