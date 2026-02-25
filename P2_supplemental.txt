@@ -13,7 +13,6 @@ could potentially mean game over. With these updates, pacman beats the single gh
 sometimes even beats the two ghosts.
 
 
-
 Q1.2:
 d = distance to food 
 g = number ghosts pacman is next to
@@ -26,7 +25,6 @@ closer to food, which would get higher scores. It also returns lower values when
 encounters a ghost, which could end the game or make it go on forever.
 
 
-
 Q2.1: 
 MinimaxAgent runs getAction, which calls the minimax function. This is a recursive function that
 continues until it hits a base case: pacman wins, loses, or search hits the max depth allowed. This works
@@ -35,12 +33,10 @@ up to the root, alternating between being minimized and maximized by the ghosts 
 optimal score and action returns to the root.
 
 
-
 Q3.1:
 The AlphaBetaAgent minimax values will be identical to the MinimaxAgent minimax values, because it only
 skips branches that a guaranteed to not impact the final result. If a player finds a worse move than their
 current option, then that player won't bother searching down that path since it won't be optimal anyways.
-
 
 
 Q3.2
