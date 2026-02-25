@@ -37,10 +37,16 @@ optimal score and action returns to the root.
 
 
 Q3.1:
+The AlphaBetaAgent minimax values will be identical to the MinimaxAgent minimax values, because it only
+skips branches that a guaranteed to not impact the final result. If a player finds a worse move than their
+current option, then that player won't bother searching down that path since it won't be optimal anyways.
+
 
 
 Q3.2
-
+If multiple actions get the same optimal value, the program will go with the action that was visited first.
+Alpha will only update if the new score is strictly greater than the current score, and the opposite is true for 
+beta. Rhe optimal action will only update if a following action has a greater score.
 
 
 Q4.1:
