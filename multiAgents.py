@@ -298,6 +298,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
     """
+    current_state = GameState
 
     def getAction(self, gameState: GameState):
         """
@@ -307,8 +308,99 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # start expectimax from root (pacman = agent 0, depth 0)
+        # value() returns (score, action), return action
+        result = self.value(gameState, 0, 0)
+        return result[1]  # best action found
+    
 
+    def value(self, gameState: GameState, agentIndex, depth):
+        # base case: stop searching if game is over OR we hit max depth
+        if gameState.isLose() or gameState.isWin() or self.depth == depth:
+            # evaluation function just returns a score for this state
+            return self.evaluationFunction(gameState), None
+
+        # pacman = max node
+        if agentIndex == 0:
+            return self.max_value(gameState, agentIndex, depth)
+        else:
+            # ghosts = chance nodes (uniform random)
+            return self.exp_value(gameState, agentIndex, depth)
+
+
+    def max_value(self, gameState: GameState, agentIndex, depth):
+        # get legal moves for pacman
+        legal_actions = gameState.getLegalActions(agentIndex)
+
+        # remove STOP
+        if Directions.STOP in legal_actions:
+            legal_actions.remove(Directions.STOP)
+
+        max_score = float("-inf")
+
+        # pick a default action so something is returned
+        best_action = legal_actions[0] if legal_actions else Directions.STOP
+
+        # try each possible action
+        for action in legal_actions:
+            succesor = gameState.generateSuccessor(agentIndex, action)
+
+            # move to next agent (ghost)
+            nextAgent = agentIndex + 1
+            nextDepth = depth
+
+            # if all agents moved, wrap back to pacman and increase depth
+            if nextAgent == gameState.getNumAgents():
+                nextAgent = 0
+                nextDepth += 1
+
+            # recursively evaluate this branch
+            score, _ = self.value(succesor, nextAgent, nextDepth)
+
+            # keep track of best scoring action
+            if score > max_score:
+                max_score = score
+                best_action = action
+
+        # return best score + action that gave it
+        return max_score, best_action
+    
+
+    def exp_value(self, gameState: GameState, agentIndex, depth):
+        # ghosts act randomly, so we compute expected value
+
+        legal_action = gameState.getLegalActions(agentIndex)
+        score = 0
+
+        actions = gameState.getLegalActions(agentIndex)
+
+        # if ghost has no moves just evaluate state
+        if len(actions) == 0:
+            return self.evaluationFunction(gameState), None
+
+        # uniform probability over actions
+        prob = 1.0 / len(actions)
+
+        # go through each possible ghost move
+        for action in legal_action:
+            succesor = gameState.generateSuccessor(agentIndex, action)
+
+            # move to next agent
+            nextAgent = agentIndex + 1
+            nextDepth = depth
+
+            # if last ghost, go back to pacman + increase depth
+            if nextAgent == gameState.getNumAgents():
+                nextAgent = 0
+                nextDepth += 1
+
+            # recursive call to evaluate outcome
+            curr_score, curr_action = self.value(succesor, nextAgent, nextDepth)
+
+            # expected value = sum(prob * value)
+            score += prob * curr_score
+
+        return score, None
 def betterEvaluationFunction(currentGameState: GameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
