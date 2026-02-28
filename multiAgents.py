@@ -409,7 +409,88 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Basic state info
+    pacPos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    foodList = food.asList()
+    ghostStates = currentGameState.getGhostStates()
+    capsules = currentGameState.getCapsules()
+
+    # Start with the real game score (important baseline)
+    score = currentGameState.getScore()
+
+    # fewer food remaining is good
+    score += -8.0 * len(foodList)
+
+    # encourage going to the nearest food
+    if foodList:
+        minFoodDist = min(manhattanDistance(pacPos, f) for f in foodList)
+        # closer food => bigger bonus
+        score += 15.0 / (minFoodDist + 1.0)
+
+        # tiny bonus for being in "food-dense" areas (not perfect, but helps)
+        closeFoods = sum(1 for f in foodList if manhattanDistance(pacPos, f) <= 2)
+        score += 1.5 * closeFoods
+
+    # generally, fewer capsules remaining is good
+    score += -20.0 * len(capsules)
+
+    # but if ghosts are close and not scared, capsules become more valuable
+    if capsules:
+        minCapDist = min(manhattanDistance(pacPos, c) for c in capsules)
+        score += 6.0 / (minCapDist + 1.0)
+
+    # ---------- GHOSTS ----------
+    ghostDists = []
+    scaredTimes = []
+    for g in ghostStates:
+        ghostDists.append(manhattanDistance(pacPos, g.getPosition()))
+        scaredTimes.append(g.scaredTimer)
+
+    if ghostDists:
+        closestGhostDist = min(ghostDists)
+    else:
+        closestGhostDist = 999
+
+    # Penalize being too close to active (not scared) ghosts
+    # Big penalty if adjacent or on top of one.
+    dangerPenalty = 0.0
+    chaseBonus = 0.0
+
+    for dist, scared in zip(ghostDists, scaredTimes):
+        if scared == 0:
+            # active ghost: avoid
+            if dist <= 1:
+                dangerPenalty += 500  # basically "don't do this"
+            elif dist == 2:
+                dangerPenalty += 120
+            else:
+                # mild repulsion so Pacman doesn’t hug ghosts
+                dangerPenalty += 2.5 / (dist + 1.0)
+        else:
+            # scared ghost: encourage chasing if reasonably close
+            # (don’t overcommit from far away)
+            chaseBonus += 25.0 / (dist + 1.0)
+            # extra if we can likely eat it soon
+            if dist <= 2:
+                chaseBonus += 15.0
+
+    score -= dangerPenalty
+    score += chaseBonus
+
+    # If there are active ghosts nearby, increase capsule urgency a bit
+    # (this helps in tight corridors)
+    if capsules:
+        activeClose = any(sc == 0 and d <= 4 for d, sc in zip(ghostDists, scaredTimes))
+        if activeClose:
+            minCapDist = min(manhattanDistance(pacPos, c) for c in capsules)
+            score += 20.0 / (minCapDist + 1.0)
+
+    # Small preference to keep moving toward something (reduces dithering)
+    # If everything is far, this nudges Pacman to avoid "meh" states.
+    score += 0.2 * (1.0 / (closestGhostDist + 1.0)) * (-1 if closestGhostDist < 4 else 1)
+
+    return score    
 
 # Abbreviation
 better = betterEvaluationFunction

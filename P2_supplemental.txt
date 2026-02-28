@@ -57,5 +57,12 @@ Expectimax assumes ghosts move randomly, so Pacman is willing to take risky path
 That’s why Expectimax wins some games while AlphaBeta always loses.
 
 Q5.1:
+My new evaluation function scores states using multiple factors instead of just reacting to the immediate move. 
+It considers distance to food, remaining food count, ghost distance, scared timers, and capsules. It rewards being 
+closer to food and finishing pellets, penalizes being near active ghosts, and encourages chasing ghosts when they’re 
+scared. Capsules are valued more when ghosts are nearby.
 
+This is better than my previous function because it evaluates the overall state strategically rather than short-term 
+moves. The old one was more reactive, while this one balances survival, scoring, and progress toward winning, which 
+is why it performs much better and consistently wins with high scores.
 
